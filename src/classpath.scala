@@ -34,4 +34,10 @@ object Classpath extends PathRoot[ClasspathUrl] with Scheme[ClasspathUrl] {
   def makePath(ascent: Int, elements: Seq[String], afterPath: AfterPath) =
     new ClasspathUrl(elements)
   def scheme = Classpath
+
+  private val Matcher = """classpath:(.*)$""".r
+
+  def parse(s: String): ClasspathUrl = s match {
+    case Matcher(path) => makePath(0, path.split("/"), Map())
+  }
 }

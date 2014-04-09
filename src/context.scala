@@ -21,30 +21,50 @@
 package rapture.uri
 
 import rapture.core._
-import java.util.zip._
-import java.io._
-import language.higherKinds
 
 import language.experimental.macros
+import scala.reflect.macros._
 
-object `package` {
+object UriMacros {
+  def uriImplementation(c: Context)(content: c.Expr[String]*): c.Expr[Any] = {
+    import c.universe._
 
-  /** Support for URI string literals */
-  implicit class UriContext(sc: StringContext) {
-    def uri(content: String*) = macro UriMacros.uriImplementation
+    c.prefix.tree match {
+      case Apply(_, List(Apply(_, rawParts))) =>
+        val xs = content.map(_.tree).to[Array]
+        val ys = rawParts.to[Array]
+
+        rawParts.head match {
+          case Literal(Constant(part: String)) =>
+            val Array(scheme, _) = part.split(":", 2)
+            c.Expr(
+              Apply(
+                Select(
+                  Ident(
+                    newTermName(scheme.capitalize)
+                  ),
+                  newTermName("parse")
+                ),
+                List(
+                  Apply(
+                    Select(
+                      Apply(
+                        Select(
+                          Ident(newTermName("List")),
+                          newTermName("apply")
+                        ),
+                        (0 until (xs.length + ys.length) map { i => if(i%2 == 0) ys(i/2) else xs(i/2) }).to[List]
+                      ),
+                      newTermName("mkString")
+                    ),
+                    List(Literal(Constant("")))
+                  )
+                )
+              )
+            )
+        }
+    }
   }
-
-  /** Convenient empty string for terminating a path (which should end in a /). */
-  val `$`: String = ""
-
-  /** The canonical root for a simple path */
-  val `^`: SimplePath = new SimplePath(Nil, Map())
-
-  type AfterPath = Map[Char, (String, Double)]
-  
-  implicit val simplePathsLinkable: Linkable[SimplePath, SimplePath] = SimplePathsLinkable
-
-  implicit def navigableExtras[Res: Navigable](url: Res): NavigableExtras[Res] =
-    new NavigableExtras(url)
-
 }
+
+object Test { def apply(x: String) = Symbol(x) }
