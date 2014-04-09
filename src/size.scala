@@ -22,8 +22,9 @@ package rapture.uri
 import rapture.core._
 
 trait Sizable[UrlType] {
+  type ExceptionType <: Exception
   /** Returns the size in bytes of the specified URL */
-  def size(url: UrlType)(implicit eh: ExceptionHandler): eh.![Long, Exception]
+  def size(url: UrlType)(implicit eh: ExceptionHandler): eh.![Long, ExceptionType]
 }
 
 class SizableExtras[UrlType: Sizable](url: UrlType) {
