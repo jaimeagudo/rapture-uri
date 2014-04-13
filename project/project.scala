@@ -1,6 +1,6 @@
 object project extends ProjectSettings {
   def scalaVersion = "2.10.4"
-  def version = "0.9.0"
+  def version = "0.9.1"
   def name = "uri"
   def description = "Rapture URI provides idiomatic and extensible support for working with URIs and URLs in Scala."
   
