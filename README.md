@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/propensive/rapture-uri.png?branch=scala-2.11)](https://travis-ci.org/propensive/rapture-uri)
+[![Build Status](https://travis-ci.org/propensive/rapture-uri.png?branch=scala-2.10)](https://travis-ci.org/propensive/rapture-uri)
 
 # Rapture URI
 
