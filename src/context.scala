@@ -26,7 +26,7 @@ import language.experimental.macros
 import scala.reflect.macros._
 
 object UriMacros {
-  def uriImplementation(c: Context)(content: c.Expr[String]*): c.Expr[Any] = {
+  def uriImplementation(c: blackbox.Context)(content: c.Expr[String]*): c.Expr[Any] = {
     import c.universe._
 
     c.prefix.tree match {
@@ -41,21 +41,21 @@ object UriMacros {
               Apply(
                 Select(
                   Ident(
-                    newTermName(scheme.capitalize)
+                    TermName(scheme.capitalize)
                   ),
-                  newTermName("parse")
+                  TermName("parse")
                 ),
                 List(
                   Apply(
                     Select(
                       Apply(
                         Select(
-                          Ident(newTermName("List")),
-                          newTermName("apply")
+                          Ident(TermName("List")),
+                          TermName("apply")
                         ),
                         (0 until (xs.length + ys.length) map { i => if(i%2 == 0) ys(i/2) else xs(i/2) }).to[List]
                       ),
-                      newTermName("mkString")
+                      TermName("mkString")
                     ),
                     List(Literal(Constant("")))
                   )
