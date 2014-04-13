@@ -24,11 +24,11 @@ import rapture.core._
 trait Sizable[UrlType] {
   type ExceptionType <: Exception
   /** Returns the size in bytes of the specified URL */
-  def size(url: UrlType)(implicit eh: ExceptionHandler): eh.![Long, ExceptionType]
+  def size(url: UrlType): Long
 }
 
 class SizableExtras[UrlType: Sizable](url: UrlType) {
   /** Returns the size in bytes of this URL */
   def size(implicit eh: ExceptionHandler): eh.![Long, Exception] =
-    eh.wrap(?[Sizable[UrlType]].size(url)(raw))
+    eh.wrap(?[Sizable[UrlType]].size(url))
 }
