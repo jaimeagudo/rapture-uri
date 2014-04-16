@@ -11,7 +11,6 @@ object project extends ProjectSettings {
   def thirdPartyDependencies = Nil
 
   def imports = Seq(
-    "rapture.core._",
-    "rapture.test._"
+    "rapture.core._"
   )
 }
