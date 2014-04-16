@@ -31,7 +31,7 @@ object `package` {
 
   /** Support for URI string literals */
   implicit class UriContext(sc: StringContext) {
-    def uri(content: String*) = macro UriMacros.uriImplementation
+    def uri(content: String*): Any = macro UriMacros.uriImplementation
   }
 
   /** Convenient empty string for terminating a path (which should end in a /). */

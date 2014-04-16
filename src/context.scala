@@ -26,7 +26,7 @@ import language.experimental.macros
 import scala.reflect.macros._
 
 object UriMacros {
-  def uriImplementation(c: blackbox.Context)(content: c.Expr[String]*): c.Expr[Any] = {
+  def uriImplementation(c: whitebox.Context)(content: c.Expr[String]*): c.Expr[Any] = {
     import c.universe._
 
     c.prefix.tree match {
