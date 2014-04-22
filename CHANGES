@@ -1,2 +1,3 @@
 - Classpath URLs now no longer get displayed with the // after the scheme
 - You should use the `query` method now in place of the symbolic /? method
+- Added a macro supporting query parameters being provided by case classes
