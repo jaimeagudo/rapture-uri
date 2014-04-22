@@ -21,6 +21,8 @@
 package rapture.uri
 import rapture.core._
 
+import language.experimental.macros
+
 import scala.collection.mutable.WrappedArray
 
 /** Repenesents a URI scheme */
@@ -121,7 +123,12 @@ class RelativePath(ascent: Int, elements: Seq[String], afterPath: AfterPath)
   def makePath(a: Int, e: Seq[String], ap: AfterPath): RelativePath = new RelativePath(a, e, ap)
 }
 
-trait QueryType[-PathType, -Q] {
+object QueryType {
+  implicit def caseClassParamable[T <: Product]: QueryType[Path[_], T] =
+    macro UriMacros.paramsMacro[T]
+}
+
+trait QueryType[-PathType, Q] {
   def extras(existing: Map[Char, (String, Double)], q: Q): Map[Char, (String, Double)]
 }
 

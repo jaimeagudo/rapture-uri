@@ -29,6 +29,8 @@ import language.experimental.macros
 
 object `package` {
 
+  type AnyPath = Path[_]
+
   /** Support for URI string literals */
   implicit class UriContext(sc: StringContext) {
     def uri(content: String*) = macro UriMacros.uriImplementation
