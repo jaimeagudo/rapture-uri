@@ -29,6 +29,6 @@ trait Sizable[UrlType] {
 
 class SizableExtras[UrlType: Sizable](url: UrlType) {
   /** Returns the size in bytes of this URL */
-  def size(implicit rts: Rts): rts.Wrap[Long, Exception] =
+  def size(implicit rts: Rts[UriMethods]): rts.Wrap[Long, Exception] =
     rts wrap ?[Sizable[UrlType]].size(url)
 }
