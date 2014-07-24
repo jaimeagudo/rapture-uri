@@ -30,7 +30,7 @@ trait Navigable[UrlType] {
   
   private implicit val errorHandler = raw
   
-  def children(url: UrlType)(implicit mode: Mode[UriMethods]): mode.Wrap[List[UrlType], Exception]
+  def children(url: UrlType)(implicit mode: Mode[UriMethods]): mode.Wrap[Seq[UrlType], Exception]
   
   /** Returns false if the filesystem object represented by this FileUrl is a file, and true if
     * it is a directory. */
@@ -52,7 +52,7 @@ class NavigableExtras[UrlType: Navigable](url: UrlType) {
   
   protected implicit val errorHandler = raw
   
-  /** Return a list of children of this URL */
+  /** Return a sequence of children of this URL */
   def children(implicit mode: Mode[UriMethods]) =
     mode wrap ?[Navigable[UrlType]].children(url)
   
@@ -65,7 +65,7 @@ class NavigableExtras[UrlType: Navigable](url: UrlType) {
     mode wrap ?[Navigable[UrlType]].descendants(url)(raw)
 
   def walkFilter(cond: UrlType => Boolean)(implicit mode: Mode[UriMethods]):
-      mode.Wrap[List[UrlType], Exception] = mode wrap {
+      mode.Wrap[Seq[UrlType], Exception] = mode wrap {
     children(raw) filter cond flatMap { f =>
       new NavigableExtras(f).walkFilter(cond)
     }
