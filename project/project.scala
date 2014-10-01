@@ -1,5 +1,4 @@
 object project extends ProjectSettings {
-<<<<<<< HEAD
   def scalaVersion = "2.11.2"
   def version = "1.0.0"
   def name = "uri"
