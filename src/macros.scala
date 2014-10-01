@@ -1,6 +1,6 @@
 /**********************************************************************************************\
 * Rapture URI Library                                                                          *
-* Version 0.9.0                                                                                *
+* Version 0.10.0                                                                               *
 *                                                                                              *
 * The primary distribution site is                                                             *
 *                                                                                              *
@@ -25,7 +25,64 @@ import rapture.core._
 import language.experimental.macros
 import scala.reflect.macros._
 
+object Paramable {
+  implicit val stringParamable = new Paramable[String] { def paramize(s: String): String = s }
+  implicit val intParamable = new Paramable[Int] { def paramize(s: Int): String = s.toString }
+  implicit val doubleParamable = new Paramable[Double] { def paramize(s: Double): String = s.toString }
+}
+
+trait Paramable[T] {
+  def paramize(t: T): String
+}
+
 object UriMacros {
+  def paramsMacro[T: c.WeakTypeTag](c: Context): c.Expr[QueryType[AnyPath, T]] = {
+    import c.universe._
+    require(weakTypeOf[T].typeSymbol.asClass.isCaseClass)
+
+    val paramable = typeOf[Paramable[_]].typeSymbol.asType.toTypeConstructor
+
+    val params = weakTypeOf[T].declarations collect {
+      case m: MethodSymbol if m.isCaseAccessor => m.asMethod
+    } map { p =>
+      val implicitParamable = c.Expr[Paramable[_]](c.inferImplicitValue(appliedType(paramable, List(p.returnType)), false, false)).tree
+      val paramValue = Apply(
+        Select(
+          implicitParamable,
+          newTermName("paramize")
+        ),
+        List(
+          Select(
+            Ident(newTermName("t")),
+            p.name
+          )
+        )
+      )
+
+      val paramName = Literal(Constant(p.name.toString+"="))
+      
+      Apply(
+        Select(paramName, newTermName("$plus")),
+        List(paramValue)
+      )
+    }
+
+    val listOfParams = c.Expr[List[String]](Apply(
+      Select(
+        Ident(newTermName("List")),
+        newTermName("apply")
+      ),
+      params.to[List]
+    ))
+
+    reify {
+      new QueryType[AnyPath, T] {
+        def extras(existing: Map[Char, (String, Double)], t: T): Map[Char, (String, Double)] =
+          existing ++ Map('?' -> (listOfParams.splice.mkString("&"), 1.0))
+      }
+    }
+  }
+  
   def uriImplementation(c: whitebox.Context)(content: c.Expr[String]*): c.Expr[Any] = {
     import c.universe._
 

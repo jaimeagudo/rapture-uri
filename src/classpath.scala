@@ -1,6 +1,6 @@
 /**********************************************************************************************\
 * Rapture URI Library                                                                          *
-* Version 0.9.0                                                                                *
+* Version 0.10.0                                                                               *
 *                                                                                              *
 * The primary distribution site is                                                             *
 *                                                                                              *
@@ -25,7 +25,7 @@ class ClasspathUrl(elements: Seq[String]) extends Url[ClasspathUrl](elements, Ma
   def makePath(ascent: Int, elements: Seq[String], afterPath: AfterPath) =
     new ClasspathUrl(elements)
   
-  def schemeSpecificPart = elements.mkString("//", "/", "")
+  def schemeSpecificPart = elements.mkString("", "/", "")
   val pathRoot = Classpath
 }
 
