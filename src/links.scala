@@ -1,6 +1,6 @@
 /**********************************************************************************************\
 * Rapture URI Library                                                                          *
-* Version 0.9.0                                                                                *
+* Version 0.10.0                                                                               *
 *                                                                                              *
 * The primary distribution site is                                                             *
 *                                                                                              *
@@ -20,6 +20,8 @@
 \**********************************************************************************************/
 package rapture.uri
 import rapture.core._
+
+import language.experimental.macros
 
 import scala.collection.mutable.WrappedArray
 
@@ -121,7 +123,12 @@ class RelativePath(ascent: Int, elements: Seq[String], afterPath: AfterPath)
   def makePath(a: Int, e: Seq[String], ap: AfterPath): RelativePath = new RelativePath(a, e, ap)
 }
 
-trait QueryType[-PathType, -Q] {
+object QueryType {
+  implicit def caseClassParamable[T <: Product]: QueryType[Path[_], T] =
+    macro UriMacros.paramsMacro[T]
+}
+
+trait QueryType[-PathType, Q] {
   def extras(existing: Map[Char, (String, Double)], q: Q): Map[Char, (String, Double)]
 }
 
@@ -145,7 +152,10 @@ abstract class Path[+PathType <: Path[PathType]](val ascent: Int, val elements: 
   /** Adds a path component to this relative path */
   def /(s: String): PathType = makePath(ascent, Array(s) ++ elements, Map())
 
-  def /?[Q](q: Q)(implicit qt: QueryType[PathType, Q]) =
+  @deprecated(message = "Use the query method instead.", since = "0.10.0")
+  def /?[Q](q: Q)(implicit qt: QueryType[PathType, Q]) = query[Q](q)(qt)
+
+  def query[Q](q: Q)(implicit qt: QueryType[PathType, Q]) =
     makePath(ascent, elements, qt.extras(afterPath, q))
 
   override def toString() =

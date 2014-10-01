@@ -1,6 +1,6 @@
 /**********************************************************************************************\
 * Rapture URI Library                                                                          *
-* Version 0.9.0                                                                                *
+* Version 0.10.0                                                                               *
 *                                                                                              *
 * The primary distribution site is                                                             *
 *                                                                                              *
@@ -28,6 +28,8 @@ import language.higherKinds
 import language.experimental.macros
 
 object `package` {
+
+  type AnyPath = Path[_]
 
   /** Support for URI string literals */
   implicit class UriContext(sc: StringContext) {
