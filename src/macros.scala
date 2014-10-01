@@ -36,24 +36,24 @@ trait Paramable[T] {
 }
 
 object UriMacros {
-  def paramsMacro[T: c.WeakTypeTag](c: Context): c.Expr[QueryType[AnyPath, T]] = {
+  def paramsMacro[T: c.WeakTypeTag](c: whitebox.Context): c.Expr[QueryType[AnyPath, T]] = {
     import c.universe._
     require(weakTypeOf[T].typeSymbol.asClass.isCaseClass)
 
     val paramable = typeOf[Paramable[_]].typeSymbol.asType.toTypeConstructor
 
-    val params = weakTypeOf[T].declarations collect {
+    val params = weakTypeOf[T].decls collect {
       case m: MethodSymbol if m.isCaseAccessor => m.asMethod
     } map { p =>
       val implicitParamable = c.Expr[Paramable[_]](c.inferImplicitValue(appliedType(paramable, List(p.returnType)), false, false)).tree
       val paramValue = Apply(
         Select(
           implicitParamable,
-          newTermName("paramize")
+          TermName("paramize")
         ),
         List(
           Select(
-            Ident(newTermName("t")),
+            Ident(TermName("t")),
             p.name
           )
         )
@@ -62,15 +62,15 @@ object UriMacros {
       val paramName = Literal(Constant(p.name.toString+"="))
       
       Apply(
-        Select(paramName, newTermName("$plus")),
+        Select(paramName, TermName("$plus")),
         List(paramValue)
       )
     }
 
     val listOfParams = c.Expr[List[String]](Apply(
       Select(
-        Ident(newTermName("List")),
-        newTermName("apply")
+        Ident(TermName("List")),
+        TermName("apply")
       ),
       params.to[List]
     ))
