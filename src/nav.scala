@@ -28,8 +28,6 @@ trait UriMethods extends ModeGroup
 
 trait Navigable[UrlType] {
   
-  private implicit val errorHandler = raw
-  
   def children(url: UrlType)(implicit mode: Mode[UriMethods]): mode.Wrap[Seq[UrlType], Exception]
   
   /** Returns false if the filesystem object represented by this FileUrl is a file, and true if
@@ -41,33 +39,32 @@ trait Navigable[UrlType] {
   def descendants(url: UrlType)(implicit mode: Mode[UriMethods]):
       mode.Wrap[Iterator[UrlType], Exception] =
     mode wrap {
-      children(url).iterator.flatMap { c =>
-        if(isDirectory(c)) Iterator(c) ++ descendants(c)
+      children(url)(modes.throwExceptions()).iterator.flatMap { c =>
+        if(isDirectory(c)(modes.throwExceptions()))
+          Iterator(c) ++ descendants(c)(modes.throwExceptions())
         else Iterator(c)
       }
     }
 }
 
 class NavigableExtras[UrlType: Navigable](url: UrlType) {
-  
-  protected implicit val errorHandler = raw
-  
+ 
   /** Return a sequence of children of this URL */
   def children(implicit mode: Mode[UriMethods]) =
-    mode wrap ?[Navigable[UrlType]].children(url)
+    mode flatWrap ?[Navigable[UrlType]].children(url)
   
   /** Return true if this URL node is a directory (i.e. it can contain other URLs). */
   def isDirectory(implicit mode: Mode[UriMethods]): mode.Wrap[Boolean, Exception] =
-    mode wrap ?[Navigable[UrlType]].isDirectory(url)(raw)
+    mode flatWrap ?[Navigable[UrlType]].isDirectory(url)
 
   /** Return an iterator of all descendants of this URL. */
   def descendants(implicit mode: Mode[UriMethods]): mode.Wrap[Iterator[UrlType], Exception] =
-    mode wrap ?[Navigable[UrlType]].descendants(url)(raw)
+    mode flatWrap ?[Navigable[UrlType]].descendants(url)
 
   def walkFilter(cond: UrlType => Boolean)(implicit mode: Mode[UriMethods]):
       mode.Wrap[Seq[UrlType], Exception] = mode wrap {
-    children(raw) filter cond flatMap { f =>
-      new NavigableExtras(f).walkFilter(cond)
+    children(modes.throwExceptions()) filter cond flatMap { f =>
+      new NavigableExtras(f).walkFilter(cond)(modes.throwExceptions())
     }
   }
 }
